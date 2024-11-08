@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import geopandas as gpd
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 st.set_page_config(layout='wide')
 
@@ -35,6 +36,8 @@ filtro = filtro[filtro['C1'] == cat]
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 ax.set_axis_off()
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
 ax.set_title(f"{depto} - {cat}")
 filtro.plot(column='Valor_pc_24', ax=ax, legend=True)
 
@@ -48,7 +51,7 @@ if depto != 'Todos':
                               aggfunc='sum')
     
     fig, ax = plt.subplots(1, 1, )
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+
+
     piv.plot(ax=ax)
     st.pyplot(fig)
