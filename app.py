@@ -9,6 +9,8 @@ import geopandas as gpd
 
 st.set_page_config(layout='wide')
 
+st.title("Mapa de regalías")
+
 reg = pd.read_csv('regalias_prov_pop.csv')
 mapa = gpd.read_parquet("muns.parquet")
 mapa.columns = ['CodEntidad', 'geometry']
