@@ -31,9 +31,13 @@ depto = st.selectbox("Seleccione un departamento: ", ['Todos'] + deptos)
 if depto != 'Todos':
     filtro = filtro[(filtro['NombreDepto'] == depto)]
 cats = filtro['C1'].unique().tolist()
-cat = st.selectbox("Seleccione una categoría: ", cats)
-filtro = filtro[filtro['C1'] == cat]
+cat = st.selectbox("Seleccione una categoría: ", ['Total'] + cats)
+if cat != 'Total':
+    filtro = filtro[filtro['C1'] == cat]
+else:
+    filtro = filtro.groupby(['geometry'])['Valor_pc_24'].sum().reset_index()
 
+filtro = gpd.GeoDataFrame(filtro)
 fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 ax.set_axis_off()
 ax.spines['top'].set_visible(False)
