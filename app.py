@@ -41,7 +41,7 @@ st.set_page_config(layout='wide')
 
 st.title("Mapa de regalías")
 
-reg = pd.read_csv('regalias_prov_pop.csv')
+reg = pd.read_csv('regalias_prov_pop.csv', dtype={'CodDepto': 'string', 'CodEntidad':'string'})
 mapa = gpd.read_parquet("muns.parquet")
 mapa.columns = ['CodEntidad', 'geometry']
 reg['CodEntidad'] = [f"0{i}" if len(str(i)) == 4 else str(i) for i in reg['CodEntidad'] ]
