@@ -47,63 +47,55 @@ mapa.columns = ['CodEntidad', 'geometry']
 reg['CodEntidad'] = [f"0{i}" if len(str(i)) == 4 else str(i) for i in reg['CodEntidad'] ]
 
 
-tab1, tab2 = st.tabs(['Mapa', 'Datos'])
 
-with tab1:
-
-    valor = st.selectbox("Seleccione un valor a calcular", ['Valor total', 'Valor total (precios 24)', 'Valor per cápita (precios 2024)'])
-    dic_valor = {"Valor total": 'Valor',
+valor = st.selectbox("Seleccione un valor a calcular", ['Valor total', 'Valor total (precios 24)', 'Valor per cápita (precios 2024)'])
+dic_valor = {"Valor total": 'Valor',
                  "Valor total (precios 24)": "Valor_24",
                  "Valor per cápita (precios 2024)":"Valor_pc_24"}
-    valor = dic_valor[valor]
-    df = gpd.GeoDataFrame(reg
+valor = dic_valor[valor]
+df = gpd.GeoDataFrame(reg
         .groupby(["NombreDepto",'CodEntidad','Periodo','C1', 'C2'])[valor]
         .sum()
         .reset_index()
         .merge(mapa)
         .assign(NombreDepto=lambda x: x['NombreDepto'].str.strip()))
 
-    periods = df['Periodo'].unique().tolist()
-    period = st.select_slider("Seleccione un periodo: ",  periods)
-    filtro = df[(df['Periodo'] == period)]
-    deptos = filtro['NombreDepto'].unique().tolist()
-    depto = st.selectbox("Seleccione un departamento: ", ['Todos'] + deptos)
-    if depto != 'Todos':
+periods = df['Periodo'].unique().tolist()
+period = st.select_slider("Seleccione un periodo: ",  periods)
+filtro = df[(df['Periodo'] == period)]
+deptos = filtro['NombreDepto'].unique().tolist()
+depto = st.selectbox("Seleccione un departamento: ", ['Todos'] + deptos)
+if depto != 'Todos':
         filtro = filtro[(filtro['NombreDepto'] == depto)]
-    cats = filtro['C1'].unique().tolist()
-    cat = st.selectbox("Seleccione una categoría: ", ['Total'] + cats)
-    if cat != 'Total':
+cats = filtro['C1'].unique().tolist()
+cat = st.selectbox("Seleccione una categoría: ", ['Total'] + cats)
+if cat != 'Total':
         filtro = filtro[filtro['C1'] == cat]
-    subcats = filtro['C2'].unique().tolist()
-    subcat = st.selectbox("Seleccione una subcategoría: ", ['Total'] + subcats)
-    if subcat != 'Total':
+subcats = filtro['C2'].unique().tolist()
+subcat = st.selectbox("Seleccione una subcategoría: ", ['Total'] + subcats)
+if subcat != 'Total':
         filtro = filtro[filtro['C2'] == subcat]
-    else:
+else:
         filtro = filtro.groupby(['geometry'])[valor].sum().reset_index()
     
 
-    filtro = gpd.GeoDataFrame(filtro)
-    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-    ax.set_axis_off()
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.set_title(f"{depto} - {cat}")
-    filtro.plot(column=valor, ax=ax, legend=True, cmap=cmap_at, edgecolor='lightgray', linewidth=0.15)
+filtro = gpd.GeoDataFrame(filtro)
+fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+ax.set_axis_off()
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.set_title(f"{depto} - {cat}")
+filtro.plot(column=valor, ax=ax, legend=True, cmap=cmap_at, edgecolor='lightgray', linewidth=0.15)
 
-    buffer = io.BytesIO()
-    fig.savefig(buffer, format='svg')
-    buffer.seek(0)  # Move to the beginning of the buffer
-    svg_data = buffer.getvalue()  # Get the SVG data
-    st.pyplot(fig)
+buffer = io.BytesIO()
+fig.savefig(buffer, format='svg')
+buffer.seek(0)  # Move to the beginning of the buffer
+svg_data = buffer.getvalue()  # Get the SVG data
+st.pyplot(fig)
     # Create a download button for the SVG file
-    st.download_button(
+st.download_button(
         label="Download SVG Image",
         data=svg_data,
         file_name="plot.svg",
         mime="image/svg+xml"
 )
-
-    
-
-with tab2:
-    st.dataframe(reg)
