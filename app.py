@@ -7,6 +7,35 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import geopandas as gpd
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import io
+from matplotlib.colors import LinearSegmentedColormap
+
+DIC_COLORES = {'verde':["#009966"],
+               'ro_am_na':["#FFE9C5", "#F7B261","#D8841C", "#dd722a","#C24C31", "#BC3B26"],
+               'az_verd': ["#CBECEF", "#81D3CD", "#0FB7B3", "#009999"],
+               'ax_viol': ["#D9D9ED", "#2F399B", "#1A1F63", "#262947"],
+               'ofiscal': ["#F9F9F9", "#2635bf"]}
+
+def generate_custom_cmap(colors, name="custom_cmap", n_bins=256):
+    """
+    Generate a custom colormap using specified colors.
+
+    Parameters:
+        colors (list): List of colors in hex, RGB, or named format. 
+                       Example: ['#ff0000', 'blue', (0.5, 1, 0.5)]
+        name (str): Name of the colormap.
+        n_bins (int): Number of discrete bins for the colormap (default: 256).
+
+    Returns:
+        LinearSegmentedColormap: A Matplotlib colormap object.
+    """
+    if len(colors) < 2:
+        raise ValueError("At least two colors are required to create a colormap.")
+    
+    return LinearSegmentedColormap.from_list(name, colors, N=n_bins)
+
+cmap_at = generate_custom_cmap(["#262947", "#0FB7B3", "#81D3CD"])
+
 
 st.set_page_config(layout='wide')
 
@@ -59,9 +88,22 @@ with tab1:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_title(f"{depto} - {cat}")
-    filtro.plot(column=valor, ax=ax, legend=True)
+    filtro.plot(column=valor, ax=ax, legend=True, cmap=cmap_at, edgecolor='lightgray', linewidth=0.15)
 
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='svg')
+    buffer.seek(0)  # Move to the beginning of the buffer
+    svg_data = buffer.getvalue()  # Get the SVG data
     st.pyplot(fig)
+    # Create a download button for the SVG file
+    st.download_button(
+        label="Download SVG Image",
+        data=svg_data,
+        file_name="plot.svg",
+        mime="image/svg+xml"
+)
+
+    
 
 with tab2:
     st.dataframe(reg)
