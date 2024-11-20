@@ -93,10 +93,28 @@ buffer.seek(0)  # Move to the beginning of the buffer
 svg_data = buffer.getvalue()  # Get the SVG data
 st.pyplot(fig)
     # Create a download button for the SVG file
+
+
+buffer = io.BytesIO()
+fig.savefig(buffer, format='svg')
+buffer.seek(0)  # Move to the beginning of the buffer
+svg_data = buffer.getvalue()  #
+
 st.download_button(
         label="Download SVG Image",
         data=svg_data,
         file_name="plot.svg",
         mime="image/svg+xml"
+)
+
+buffer = io.BytesIO()
+fig.savefig(buffer, format='jpeg')
+buffer.seek(0)  # Move to the beginning of the buffer
+jpeg_data = buffer.getvalue()  #
+
+st.download_button(
+        label="Download JPEG Image",
+        data=jpeg_data,
+        file_name="plot.jpeg"
 )
 
