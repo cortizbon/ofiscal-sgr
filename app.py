@@ -76,7 +76,7 @@ subcat = st.selectbox("Seleccione una subcategoría: ", ['Total'] + subcats)
 if subcat != 'Total':
         filtro = filtro[filtro['C2'] == subcat]
 else:
-        filtro = filtro.groupby(['geometry'])[valor].sum().reset_index()
+        filtro = filtro.groupby(['CodEntidad','geometry'])[valor].sum().reset_index()
     
 
 filtro = gpd.GeoDataFrame(filtro)
@@ -85,7 +85,7 @@ ax.set_axis_off()
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 ax.set_title(f"{depto} - {cat}")
-filtro.plot(column=valor, ax=ax, legend=True, cmap=cmap_at, edgecolor='lightgray', linewidth=0.15)
+filtro.plot(column=valor, ax=ax, legend=True, cmap=cmap_at, edgecolor='lightgray', linewidth=0.09)
 
 buffer = io.BytesIO()
 fig.savefig(buffer, format='svg')
@@ -99,3 +99,4 @@ st.download_button(
         file_name="plot.svg",
         mime="image/svg+xml"
 )
+
